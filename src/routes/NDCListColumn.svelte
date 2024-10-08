@@ -140,6 +140,7 @@
   }
 
   function handleItemClick(item: NDC9Item) {
+    console.log('ndccolumn: dispatch Item selected', item['@id']);
     dispatch('selectItem', { item, scrollTo: false });
   }
 

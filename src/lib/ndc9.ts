@@ -4,7 +4,7 @@ export interface NDC9Item {
   '@id': string;
   '@type'?: string | string[];
   'rdfs:label'?: string;
-  'skos:notation'?: string;
+  'skos:notation': string;
   'skos:prefLabel': {
     '@value': string;
     '@language': string;

@@ -2,7 +2,7 @@
 
 <script lang="ts">
   import { onMount, createEventDispatcher } from 'svelte';
-  import { VList } from "virtua/svelte";
+  import VirtualScroll from "svelte-virtual-scroll-list";
   import { ndc9Store } from '../store/ndc9Store';
   import { detailHistoryStore } from '../store/detailHistoryStore';
   import type { NDC9Item } from '../lib/ndc9';
@@ -47,44 +47,52 @@
     height += item['ndcv:indexedTerm'] ? (Array.isArray(item['ndcv:indexedTerm']) ? item['ndcv:indexedTerm'].length * 30 : 30) : 0;
     return height;
   }
+
+  function renderItem(id: string) {
+    const item = getItemById(id);
+    if (!item) return null;
+
+    return {
+      id: id,
+      content: item
+    };
+  }
+
+  $: virtualItems = detailHistory.map(renderItem).filter(item => item !== null);
 </script>
 
 <div class="detail-column">
-  <VList
-    data={detailHistory}
-    getKey={(id) => id}
-    estimateSize={(id) => estimateCardHeight(id)}
-    style="height: 100%;"
+  <VirtualScroll
+    data={virtualItems}
+    key="id"
+    let:data
   >
-    {#each detailHistory as id (id)}
-      {@const item = getItemById(id)}
-      {#if item}
         <div class="card">
-          <h2>{item.prefLabel}</h2>
-          {#if item['skos:notation']}
-            <p class="notation">{item['skos:notation']}</p>
+          <h2>{data.content.prefLabel}</h2>
+          {#if data.content['skos:notation']}
+            <p class="notation">{data.content['skos:notation']}</p>
           {/if}
-          {#if item['@type']}
-            <p><strong>Type:</strong> {Array.isArray(item['@type']) ? item['@type'].join(', ') : item['@type']}</p>
+          {#if data.content['@type']}
+            <p><strong>Type:</strong> {Array.isArray(data.content['@type']) ? data.content['@type'].join(', ') : data.content['@type']}</p>
           {/if}
-          {#if item['skos:broader']}
+          {#if data.content['skos:broader']}
             <p>
               <strong>Broader:</strong>
-              {#if typeof item['skos:broader'] === 'string'}
-                {@const broaderId = item['skos:broader']}
+              {#if typeof data.content['skos:broader'] === 'string'}
+                {@const broaderId = data.content['skos:broader']}
                 {@const broaderItem = getItemById(broaderId)}
                 {broaderItem ? broaderItem.prefLabel : broaderId}
               {:else}
-                {@const broaderId = item['skos:broader']['@id']}
+                {@const broaderId = data.content['skos:broader']['@id']}
                 {@const broaderItem = getItemById(broaderId)}
                 {broaderItem ? broaderItem.prefLabel : broaderId}
               {/if}
             </p>
           {/if}
-          {#if item['skos:narrower']}
+          {#if data.content['skos:narrower']}
             <p><strong>Narrower:</strong></p>
             <ul>
-              {#each Array.isArray(item['skos:narrower']) ? item['skos:narrower'] : [item['skos:narrower']] as narrower}
+              {#each Array.isArray(data.content['skos:narrower']) ? data.content['skos:narrower'] : [data.content['skos:narrower']] as narrower}
                 {#if typeof narrower === 'string'}
                   {@const narrowerId = narrower}
                   {@const narrowerItem = getItemById(narrowerId)}
@@ -97,21 +105,21 @@
               {/each}
             </ul>
           {/if}
-          {#if item['skos:note']}
+          {#if data.content['skos:note']}
             <div class="notes">
               <strong>Notes:</strong>
               <ul>
-                {#each Array.isArray(item['skos:note']) ? item['skos:note'] : [item['skos:note']] as note}
+                {#each Array.isArray(data.content['skos:note']) ? data.content['skos:note'] : [data.content['skos:note']] as note}
                   <li>{note}</li>
                 {/each}
               </ul>
             </div>
           {/if}
-          {#if item['ndcv:indexedTerm']}
+          {#if data.content['ndcv:indexedTerm']}
             <div class="indexed-terms">
               <strong>Indexed Terms:</strong>
               <ul>
-                {#each Array.isArray(item['ndcv:indexedTerm']) ? item['ndcv:indexedTerm'] : [item['ndcv:indexedTerm']] as term}
+                {#each Array.isArray(data.content['ndcv:indexedTerm']) ? data.content['ndcv:indexedTerm'] : [data.content['ndcv:indexedTerm']] as term}
                   <li>
                     <button on:click={() => handleIndexedTermClick(term['xl:literalForm'])}>
                       {term['xl:literalForm']} ({term['ndl:transcription']})
@@ -122,9 +130,7 @@
             </div>
           {/if}
         </div>
-      {/if}
-    {/each}
-  </VList>
+  </VirtualScroll>
 </div>
 
 <style lang="scss">

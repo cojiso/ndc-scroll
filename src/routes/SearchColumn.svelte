@@ -21,7 +21,6 @@
   }
   
   function handleItemSelect(item: NDC9Item) {
-    console.log('SearchColumn: Item selected', item);
     dispatch('selectItem', { item, scrollTo: true });
   }
 
