@@ -19,6 +19,7 @@
   let updateQueued = false;
   const DEBOUNCE_THRESHOLD = 100;
   let ndcSearchQuery = '';
+  let depthFilter = Infinity;
 
   ndc9Store.subscribe(value => {
     ndc9Items = value;
@@ -145,12 +146,27 @@
   }
 
   $: filteredItems = ndc9Items.filter(item => 
-    item['skos:notation']?.includes(ndcSearchQuery)
+    item['skos:notation']?.includes(ndcSearchQuery) && item.depth <= depthFilter
   );
+
+  function handleDepthFilterChange(event: Event) {
+    const selectedValue = (event.target as HTMLSelectElement).value;
+    depthFilter = selectedValue === 'infinity' ? Infinity : parseInt(selectedValue, 10);
+  }
 </script>
 
 <div class="ndc-column">
   <div class="ndc-search">
+    <div class="depth-filter">
+      <select on:change={handleDepthFilterChange}>
+        <option value="infinity">∞</option>
+        <option value="0">1<span class="unit">次</span></option>
+        <option value="1">2<span class="unit">次</span></option>
+        <option value="2">3<span class="unit">次</span></option>
+        <option value="3">4<span class="unit">次</span></option>
+        <option value="4">5<span class="unit">次</span></option>
+      </select>
+    </div>
     <input 
       type="text" 
       bind:value={ndcSearchQuery} 
@@ -174,18 +190,21 @@
       {/each}
     </div>
     <div class="ndc-list">
-      {#each ndc9Items as item (item['@id'])}
-        <div 
-          class="ndc-item"
-          style={getIndentStyle(item.depth)}
-          id={item['@id']}
-          on:click={() => handleItemClick(item)}
-        >
-          {#if item['skos:notation']}
-            <span class="item-notation">{item['skos:notation']}</span>
-          {/if}
-          <span class="item-label">{item.prefLabel}</span>
-        </div>
+      {#each filteredItems as item (item['@id'])}
+      <div 
+        class="ndc-item"
+        style={getIndentStyle(item.depth)}
+        id={item['@id']}
+        on:click={() => handleItemClick(item)}
+        on:keydown={(e) => e.key === 'Enter' && handleItemClick(item)}
+        tabindex="0"
+        role="button"
+      >
+        {#if item['skos:notation']}
+          <span class="item-notation">{item['skos:notation']}</span>
+        {/if}
+        <span class="item-label">{item.prefLabel}</span>
+      </div>
       {/each}
     </div>
   </div>
@@ -241,17 +260,43 @@
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   }
 
-  .sticky-header.scroll-up {
-    transform: translateY(0);
-  }
-
-  .sticky-header.scroll-down {
-    transform: translateY(-100%);
-  }
-
   .sticky-item, .ndc-item {
     padding: 6px 4px;
     font-size: var(--font-size-base);
+  }
+
+  .depth-filter {
+    select {
+      height: 100%;
+      padding: var(--spacing-small);
+      font-size: var(--font-size-base);
+      border: 1px solid var(--color-secondary);
+      border-radius: 4px;
+      background-color: var(--color-background);
+      cursor: pointer;
+      appearance: none;
+      -webkit-appearance: none;
+      -moz-appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23333' d='M10.293 3.293L6 7.586 1.707 3.293A1 1 0 00.293 4.707l5 5a1 1 0 001.414 0l5-5a1 1 0 10-1.414-1.414z'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 8px center;
+      padding-right: 24px;
+    }
+
+    option {
+      font-size: var(--font-size-base);
+    }
+
+    .unit {
+      font-size: 0.7em;
+      vertical-align: super;
+    }
+  }
+
+  .ndc-item:focus {
+    border-radius: 4px;
+    box-shadow: 0 0 0 3px rgba(var(--color-primary), 0.3);
+    background-color: var(--color-secondary-light);
   }
 
   .ndc-item:hover {

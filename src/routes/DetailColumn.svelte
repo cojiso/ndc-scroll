@@ -59,6 +59,13 @@
   }
 
   $: virtualItems = detailHistory.map(renderItem).filter(item => item !== null);
+
+  function handleItemClick(id: string) {
+    const item = getItemById(id);
+    if (item) {
+      dispatch('selectItem', { item, scrollTo: true });
+    }
+  }
 </script>
 
 <div class="detail-column">
@@ -81,11 +88,15 @@
               {#if typeof data.content['skos:broader'] === 'string'}
                 {@const broaderId = data.content['skos:broader']}
                 {@const broaderItem = getItemById(broaderId)}
-                {broaderItem ? broaderItem.prefLabel : broaderId}
+                <button class="link-button" on:click={() => handleItemClick(broaderId)}>
+                  {broaderItem ? broaderItem.prefLabel : broaderId}
+                </button>
               {:else}
                 {@const broaderId = data.content['skos:broader']['@id']}
                 {@const broaderItem = getItemById(broaderId)}
-                {broaderItem ? broaderItem.prefLabel : broaderId}
+                <button class="link-button" on:click={() => handleItemClick(broaderId)}>
+                  {broaderItem ? broaderItem.prefLabel : broaderId}
+                </button>
               {/if}
             </p>
           {/if}
@@ -96,11 +107,19 @@
                 {#if typeof narrower === 'string'}
                   {@const narrowerId = narrower}
                   {@const narrowerItem = getItemById(narrowerId)}
-                  <li>{narrowerItem ? narrowerItem.prefLabel : narrowerId}</li>
+                  <li>
+                    <button class="link-button" on:click={() => handleItemClick(narrowerId)}>
+                      {narrowerItem ? narrowerItem.prefLabel : narrowerId}
+                    </button>
+                  </li>
                 {:else}
                   {@const narrowerId = narrower['@id']}
                   {@const narrowerItem = getItemById(narrowerId)}
-                  <li>{narrowerItem ? narrowerItem.prefLabel : narrowerId}</li>
+                  <li>
+                    <button class="link-button" on:click={() => handleItemClick(narrowerId)}>
+                      {narrowerItem ? narrowerItem.prefLabel : narrowerId}
+                    </button>
+                  </li>
                 {/if}
               {/each}
             </ul>
@@ -202,5 +221,19 @@
 
   .indexed-terms button:hover {
     color: var(--color-primary-dark);
+  }
+
+  .link-button {
+    background: none;
+    border: none;
+    color: var(--color-primary);
+    cursor: pointer;
+    padding: 0;
+    font: inherit;
+
+    &:hover, &:focus {
+      color: var(--color-primary-dark);
+      text-decoration: none;
+    }
   }
 </style>

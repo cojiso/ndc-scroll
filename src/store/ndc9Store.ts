@@ -11,7 +11,8 @@ function createNDC9Store() {
     subscribe,
     loadData: async () => {
       try {
-        const response = await fetch('/ndc9.json');
+        // const response = await fetch('/ndc9.json');
+        const response = await fetch('https://gist.githubusercontent.com/cojiso/0eba279374d15c6d77dc4ae6c8535c4a/raw/ndc9.json');
         const jsonData = await response.json();
         const parsedData = parseNDC9Data(jsonData);
         set(parsedData);

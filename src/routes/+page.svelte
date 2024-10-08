@@ -62,6 +62,15 @@
     scrollToSelected = event.detail.scrollTo;
     detailHistoryStore.addItem(event.detail.item['@id']);
     setActiveColumn('detail');
+
+    // NDCListColumnの項目にフォーカスする
+    if (event.detail.scrollTo) {
+      const element = document.getElementById(event.detail.item['@id']);
+      if (element) {
+        element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        element.focus();
+      }
+    }
   }
 
   function handleSearchIndexedTerm(event: CustomEvent<string>) {
@@ -93,7 +102,7 @@
   
   {#if !isMobile || activeColumn === 'detail'}
     <div class="column detail-column" class:active={activeColumn === 'detail'} transition:fly="{{ x: 100, duration: 300 }}">
-      <DetailColumn on:searchIndexedTerm={handleSearchIndexedTerm} />
+      <DetailColumn on:searchIndexedTerm={handleSearchIndexedTerm} on:selectItem={handleSelectItem} />
     </div>
   {/if}
 </main>
