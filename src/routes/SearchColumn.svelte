@@ -65,7 +65,7 @@
   </div>
 </div>
 
-<style lang="scss">
+<style>
   .search-column {
     display: flex;
     flex-direction: column;
@@ -75,9 +75,6 @@
   .search-bar {
     background-color: var(--color-background);
     box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
-    // position: sticky;
-    // top: 0;
-    // z-index: 10;
   }
 
   .search-bar input {

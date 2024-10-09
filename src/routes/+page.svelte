@@ -1,7 +1,7 @@
 <!-- ndc-list/src/routes/+page.svelte -->
 
 <script lang="ts">
-  import '../app.scss';
+  import '../app.css';
   import { onMount } from 'svelte';
   import { writable } from 'svelte/store';
   import { fly } from 'svelte/transition';
@@ -107,17 +107,7 @@
   {/if}
 </main>
 
-<style lang="scss">
-  :global(*) {
-    box-sizing: border-box;
-  }
-
-  :global(body) {
-    margin: 0;
-    padding: 0;
-    overflow: hidden;
-  }
-
+<style>
   .layout {
     display: flex;
     height: 100vh;

@@ -152,7 +152,7 @@
   </VirtualScroll>
 </div>
 
-<style lang="scss">
+<style>
   .detail-column {
     height: 100%;
     overflow-y: auto;
@@ -164,7 +164,7 @@
     border-radius: 4px;
     padding: 15px;
     box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
-    margin-bottom: 10px; // カード間の隙間を管理
+    margin-bottom: 10px;
   }
 
   h2 {
@@ -186,7 +186,6 @@
   }
 
   li {
-    // margin-bottom: 3px;
     font-size: var(--font-size-base);
   }
 
@@ -215,7 +214,6 @@
     padding: 0;
     font-size: inherit;
     text-align: left;
-    // text-decoration: underline;
     line-height: 1.5;
   }
 
@@ -230,10 +228,11 @@
     cursor: pointer;
     padding: 0;
     font: inherit;
+  }
 
-    &:hover, &:focus {
-      color: var(--color-primary-dark);
-      text-decoration: none;
-    }
+  .link-button:hover, 
+  .link-button:focus {
+    color: var(--color-primary-dark);
+    text-decoration: none;
   }
 </style>
