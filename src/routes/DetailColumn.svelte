@@ -28,6 +28,21 @@
     };
   });
 
+  type NDCType = 'ndcv:MainClass' | 'ndcv:Division' | 'ndcv:Section' | 'skos:Concept' | 'skos:Collection' | 'ndcv:Variant';
+
+  const typeMapping: Record<NDCType, string> = {
+    'ndcv:MainClass': '類目（第1次区分）',
+    'ndcv:Division': '綱目（第2次区分）',
+    'ndcv:Section': '要目（第3次区分）',
+    'skos:Concept': '細目（機械生成した分類項目）',
+    'skos:Collection': 'コレクション',
+    'ndcv:Variant': 'バリアント'
+  };
+
+  function getTypeName(type: string): string {
+    return (type in typeMapping) ? typeMapping[type as NDCType] : type;
+  }
+
   function getItemById(id: string): NDC9Item | undefined {
     return ndc9Items.find(item => item['@id'] === id);
   }
@@ -80,11 +95,17 @@
             <p class="notation">{data.content['skos:notation']}</p>
           {/if}
           {#if data.content['@type']}
-            <p><strong>Type:</strong> {Array.isArray(data.content['@type']) ? data.content['@type'].join(', ') : data.content['@type']}</p>
+            <p><strong>種類:</strong>
+              {#if Array.isArray(data.content['@type'])}
+                {data.content['@type'].map(getTypeName).join(', ')}
+              {:else}
+                {getTypeName(data.content['@type'])}
+              {/if}
+            </p>
           {/if}
           {#if data.content['skos:broader']}
             <p>
-              <strong>Broader:</strong>
+              <strong>上位分類項目:</strong>
               {#if typeof data.content['skos:broader'] === 'string'}
                 {@const broaderId = data.content['skos:broader']}
                 {@const broaderItem = getItemById(broaderId)}
@@ -101,7 +122,7 @@
             </p>
           {/if}
           {#if data.content['skos:narrower']}
-            <p><strong>Narrower:</strong></p>
+            <p><strong>下位分類項目:</strong></p>
             <ul>
               {#each Array.isArray(data.content['skos:narrower']) ? data.content['skos:narrower'] : [data.content['skos:narrower']] as narrower}
                 {#if typeof narrower === 'string'}
@@ -126,7 +147,7 @@
           {/if}
           {#if data.content['skos:note']}
             <div class="notes">
-              <strong>Notes:</strong>
+              <strong>注記:</strong>
               <ul>
                 {#each Array.isArray(data.content['skos:note']) ? data.content['skos:note'] : [data.content['skos:note']] as note}
                   <li>{note}</li>
@@ -136,7 +157,7 @@
           {/if}
           {#if data.content['ndcv:indexedTerm']}
             <div class="indexed-terms">
-              <strong>Indexed Terms:</strong>
+              <strong>索引語:</strong>
               <ul>
                 {#each Array.isArray(data.content['ndcv:indexedTerm']) ? data.content['ndcv:indexedTerm'] : [data.content['ndcv:indexedTerm']] as term}
                   <li>
