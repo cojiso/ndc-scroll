@@ -8,9 +8,12 @@
   import SearchColumn from './SearchColumn.svelte';
   import NDCListColumn from './NDCListColumn.svelte';
   import DetailColumn from './DetailColumn.svelte';
+  import LoadingBar from './LoadingAnimation.svelte';
+  import HoverMenu from './HoverMenu.svelte';
   import type { NDC9Item } from '../lib/ndc9';
   import { detailHistoryStore } from '../store/detailHistoryStore';
   import { ndc9Store } from '../store/ndc9Store';
+  import { ndc9LoadingStore } from '../store/ndc9LoadingStore';
 
   let isMobile: boolean;
   let activeColumn: 'search' | 'list' | 'detail' = 'list';
@@ -19,12 +22,16 @@
   let selectedItem: NDC9Item | null = null;
   let scrollToSelected = false;
   let searchQuery = writable('');
+  let isLoading = true;
 
-  onMount(() => {
+  onMount(async () => {
     const mediaQuery = window.matchMedia('(max-width: 768px)');
     isMobile = mediaQuery.matches;
     mediaQuery.addListener(handleMediaQueryChange);
-    ndc9Store.loadData();
+
+    ndc9LoadingStore.reset();
+    await ndc9Store.loadData();
+    isLoading = false;
   });
 
   function handleMediaQueryChange(e: MediaQueryListEvent) {
@@ -83,6 +90,10 @@
   <title>NDC9 List</title>
 </svelte:head>
 
+<LoadingBar {isLoading} />
+
+<HoverMenu />
+
 <main class="layout" class:mobile={isMobile} on:touchstart={handleTouchStart} on:touchmove={handleTouchMove} on:touchend={handleTouchEnd}>
   {#if !isMobile || activeColumn === 'search'}
     <div class="column search-column" class:active={activeColumn === 'search'} transition:fly="{{ x: -100, duration: 300 }}">
@@ -121,7 +132,8 @@
   }
 
   .ndc-list-column {
-    box-shadow: -5px 0 10px rgba(0, 0, 0, 0.1);
+    box-shadow: -5px 0 10px rgba(0, 0, 0, 0.1), 5px 0 10px rgba(0, 0, 0, 0.1);
+    z-index: 2;
   }
 
   .mobile .column {
@@ -145,6 +157,7 @@
 
   .detail-column {
     background-color: #ffffff;
+    padding: 0;
   }
 
   @media (max-width: 768px) {

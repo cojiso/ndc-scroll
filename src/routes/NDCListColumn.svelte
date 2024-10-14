@@ -4,6 +4,7 @@
   import { onMount, createEventDispatcher } from 'svelte';
   import { ndc9Store } from '../store/ndc9Store';
   import type { NDC9Item } from '../lib/ndc9';
+  import { ChevronDown } from 'lucide-svelte';
 
   const dispatch = createEventDispatcher();
 
@@ -19,7 +20,9 @@
   let updateQueued = false;
   const DEBOUNCE_THRESHOLD = 100;
   let ndcSearchQuery = '';
-  let depthFilter = Infinity;
+  let inputElement: HTMLInputElement;
+  let depthFilter: number | typeof Infinity = Infinity;
+  let filterType: 'layer' | 'level' = 'layer';
 
   ndc9Store.subscribe(value => {
     ndc9Items = value;
@@ -46,28 +49,42 @@
     }
   }
 
-  function handleNdcSearch() {
-    if (ndcSearchQuery) {
-      const matchedItem = ndc9Items.find(item => item['skos:notation'] === ndcSearchQuery);
-      if (matchedItem) {
-        scrollToItem(matchedItem);
-      } else {
-        const closestItem = ndc9Items.reduce((closest, current) => {
-          if (current['skos:notation'] && current['skos:notation'].startsWith(ndcSearchQuery)) {
-            if (!closest || current['skos:notation'].length < closest['skos:notation'].length) {
-              return current;
-            }
-          }
-          return closest;
-        }, null as NDC9Item | null);
-
-        if (closestItem) {
-          scrollToItem(closestItem);
-        } else {
-          console.log('No matching or close items found');
-        }
-      }
+  $: {
+    const formattedValue = formatNDCInput(ndcSearchQuery);
+    if (formattedValue !== ndcSearchQuery) {
+      ndcSearchQuery = formattedValue;
+      // カーソル位置の調整
+      setTimeout(() => {
+        const cursorPos = inputElement.selectionStart || 0;
+        const dotPosition = formattedValue.indexOf('.');
+        inputElement.setSelectionRange(
+          cursorPos + (dotPosition !== -1 && cursorPos > dotPosition ? 1 : 0),
+          cursorPos + (dotPosition !== -1 && cursorPos > dotPosition ? 1 : 0)
+        );
+      }, 0);
     }
+  }
+
+  $: {
+    const matchedItem = ndc9Items.find(item => item['skos:notation'] === ndcSearchQuery);
+    if (matchedItem) {
+      scrollToItem(matchedItem);
+    }
+  }
+
+  function handleJumpClick() {
+    const matchedItem = ndc9Items.find(item => item['skos:notation'] === ndcSearchQuery);
+    if (matchedItem) {
+      dispatch('selectItem', { item: matchedItem, scrollTo: true });
+    }
+  }
+
+  function formatNDCInput(input: string): string {
+    const numbers = input.replace(/[^0-9]/g, '');
+    if (numbers.length > 3) {
+      return numbers.slice(0, 3) + '.' + numbers.slice(3);
+    }
+    return numbers;
   }
 
   function handleScroll() {
@@ -145,35 +162,59 @@
     dispatch('selectItem', { item, scrollTo: false });
   }
 
-  $: filteredItems = ndc9Items.filter(item => 
-    item['skos:notation']?.includes(ndcSearchQuery) && item.depth <= depthFilter
-  );
+  function getNotationDigits(notation: string): number {
+    return notation.replace(/[^0-9]/g, '').length;
+  }
+
+  $: filteredItems = ndc9Items.filter(item => {
+    if (depthFilter === Infinity) return true;
+    if (filterType === 'layer') {
+      return item.depth <= (depthFilter as number);
+    } else {
+      return getNotationDigits(item['skos:notation']) <= (depthFilter as number) + 1;
+    }
+  });
 
   function handleDepthFilterChange(event: Event) {
     const selectedValue = (event.target as HTMLSelectElement).value;
     depthFilter = selectedValue === 'infinity' ? Infinity : parseInt(selectedValue, 10);
   }
+
+  function handleFilterTypeChange(event: Event) {
+    filterType = (event.target as HTMLSelectElement).value as 'layer' | 'level';
+  }
 </script>
 
 <div class="ndc-column">
   <div class="ndc-search">
-    <div class="depth-filter">
-      <select on:change={handleDepthFilterChange}>
-        <option value="infinity">∞</option>
-        <option value="0">1<span class="unit">次</span></option>
-        <option value="1">2<span class="unit">次</span></option>
-        <option value="2">3<span class="unit">次</span></option>
-        <option value="3">4<span class="unit">次</span></option>
-        <option value="4">5<span class="unit">次</span></option>
-      </select>
+    <div class="filter-controls">
+      <div class="select-wrapper left">
+        <select on:change={handleDepthFilterChange}>
+          <option value="infinity" class="infinity-option">∞</option>
+          <option value="0">1</option>
+          <option value="1">2</option>
+          <option value="2">3</option>
+          <option value="3">4</option>
+          <option value="4">5</option>
+        </select>
+        <ChevronDown size={12} class="chevron-icon" />
+      </div>
+      <div class="select-wrapper right">
+        <select on:change={handleFilterTypeChange}>
+          <option value="layer">層</option>
+          <option value="level">次</option>
+        </select>
+        <ChevronDown size={12} class="chevron-icon" />
+      </div>
     </div>
     <input 
-      type="text" 
-      bind:value={ndcSearchQuery} 
+      bind:this={inputElement}
+      bind:value={ndcSearchQuery}
+      type="tel"
+      inputmode="numeric"
       placeholder="NDC番号検索"
-      on:keydown={(e) => e.key === 'Enter' && handleNdcSearch()}
     >
-    <button on:click={handleNdcSearch}>Jump</button>
+    <button on:click={handleJumpClick}>Jump</button>
   </div>
   <div class="ndc-container" bind:this={containerElement} on:scroll={handleScroll}>
     <div class="sticky-header" bind:this={stickyHeader}>
@@ -221,6 +262,7 @@
     margin-bottom: var(--spacing-small);
     display: flex;
     gap: 6px;
+    position: relative;
   }
 
   .ndc-search input {
@@ -232,16 +274,18 @@
   }
 
   .ndc-search button {
-    padding: var(--spacing-small) 12px;
+    padding: var(--spacing-small) var(--spacing-medium);
     font-size: var(--font-size-base);
     cursor: pointer;
     background-color: var(--color-primary);
     color: var(--color-background);
     border: none;
     border-radius: 4px;
+    transition: all 0.3s ease;
   }
 
   .ndc-search button:hover {
+    transform: translateY(-2px);
     background-color: var(--color-primary-dark);
   }
 
@@ -265,30 +309,59 @@
     font-size: var(--font-size-base);
   }
 
-  .depth-filter select {
-    height: 100%;
-    padding: var(--spacing-small);
-    font-size: var(--font-size-base);
+  .filter-controls {
+    display: flex;
     border: 1px solid var(--color-secondary);
     border-radius: 4px;
+    overflow: hidden;
+  }
+
+  .select-wrapper {
+    position: relative;
+    display: inline-block;
+  }
+
+  .select-wrapper select {
+    height: 100%;
+    padding: var(--spacing-small);
+    padding-right: 24px;
+    font-size: var(--font-size-base);
+    border: none;
     background-color: var(--color-background);
     cursor: pointer;
     appearance: none;
     -webkit-appearance: none;
     -moz-appearance: none;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23333' d='M10.293 3.293L6 7.586 1.707 3.293A1 1 0 00.293 4.707l5 5a1 1 0 001.414 0l5-5a1 1 0 10-1.414-1.414z'/%3E%3C/svg%3E");
-    background-repeat: no-repeat;
-    background-position: right 8px center;
-    padding-right: 24px;
   }
 
-  .depth-filter option {
-    font-size: var(--font-size-base);
+  .select-wrapper :global(svg) {
+    position: absolute;
+    right: 6px;
+    top: 50%;
+    transform: translateY(-50%);
+    pointer-events: none;
   }
 
-  .depth-filter .unit {
-    font-size: 0.7em;
-    vertical-align: super;
+  .select-wrapper :global(.chevron-icon) {
+    position: absolute;
+    right: 8px;
+    top: 50%;
+    transform: translateY(-50%);
+    pointer-events: none;
+    color: var(--color-secondary);
+  }
+
+  .select-wrapper.left {
+    border-right: 1px solid var(--color-secondary);
+  }
+
+  .select-wrapper.left select {
+    font-weight: bold;
+    padding-left: 16px;
+  }
+
+  .select-wrapper select option.infinity-option {
+    font-size: 1.6em;
   }
 
   .ndc-item:focus {
