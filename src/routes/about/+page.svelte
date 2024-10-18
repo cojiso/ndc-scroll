@@ -16,7 +16,9 @@
     NDC Scrollは、日本の公共図書館で広く使用されている分類方法、日本十進分類法（NDC）を視覚的に探索できるWebツールです。
   </p>
 
-  <img src="ndc-scroll-screenshot.jpeg" alt="NDC Scroll Screenshot" class="screenshot" />
+  <div class="image-container">
+    <img src="ndc-scroll-screenshot.avif" alt="NDC Scroll Screenshot" class="screenshot" loading="lazy" />
+  </div>
 
   <h2>NDCとは？</h2>
   <p>
@@ -27,6 +29,11 @@
     NDC Scrollでは、日本図書館協会が提供するNDC第9版のデータを使用しています。
   </p>
 
+  <h2>このプロジェクトについて</h2>
+  <p>
+    NDC Scrollは、図書館情報学の学習や、本の分類に興味がある方々のために開発されました。NDCの構造を視覚的に理解することで、図書館での本の配架や、図書館学における分類の重要性をより深く理解することができます。
+  </p>
+
   <h2>NDC Scrollの特徴</h2>
   <ul>
     <li><strong>視覚的なNDC探索</strong>: NDCの階層構造を見やすく表示し、簡単に閲覧できます。</li>
@@ -35,11 +42,6 @@
     <li><strong>使いやすいナビゲーション</strong>: VSCodeの機能を参考にしたスティッキースクロールで、大量の情報でも迷子になりません。</li>
     <li><strong>どこでも使える</strong>: スマートフォンやタブレットでも快適に使用できます。</li>
   </ul>
-
-  <h2>このプロジェクトについて</h2>
-  <p>
-    NDC Scrollは、図書館情報学の学習や、本の分類に興味がある方々のために開発されました。NDCの構造を視覚的に理解することで、図書館での本の配架や、図書館学における分類の重要性をより深く理解することができます。
-  </p>
 
   <h2>先行プロジェクト</h2>
   <p>NDC Scrollは以下の先行ツールにインスパイアされています：</p>
@@ -144,11 +146,22 @@
     text-decoration: underline;
   }
 
-  .screenshot {
-    max-width: 100%;
-    height: auto;
+  .image-container {
+    width: 100%;
+    padding-top: 56.25%; /* 16:9のアスペクト比を維持 */
+    position: relative;
     margin: 20px 0;
-    /* box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); */
+    background-color: #f0f0f0; /* プレースホルダーの背景色 */
     border-radius: 8px;
+    overflow: hidden;
+  }
+
+  .screenshot {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
   }
 </style>
