@@ -148,7 +148,7 @@
 
   .image-container {
     width: 100%;
-    padding-top: 56.25%; /* 16:9のアスペクト比を維持 */
+    padding-top: 76.21%; /* 16:9のアスペクト比を維持 */
     position: relative;
     margin: 20px 0;
     background-color: #f0f0f0; /* プレースホルダーの背景色 */
@@ -162,6 +162,7 @@
     left: 0;
     width: 100%;
     height: 100%;
-    object-fit: cover;
+    object-fit: contain;
+    object-position: center;
   }
 </style>
