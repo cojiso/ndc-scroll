@@ -148,10 +148,10 @@
 
   .image-container {
     width: 100%;
-    padding-top: 76.21%; /* 16:9のアスペクト比を維持 */
+    padding-top: 76.21%;
     position: relative;
     margin: 20px 0;
-    background-color: #f0f0f0; /* プレースホルダーの背景色 */
+    background-color: #f0f0f0;
     border-radius: 8px;
     overflow: hidden;
   }

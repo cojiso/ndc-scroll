@@ -4,7 +4,10 @@
 [![Version](https://img.shields.io/badge/version-1.0.0-blue)](https://github.com/cojiso/ndc-scroll/releases)
 
 ## 概要
-![NDC Scroll 画面イメージ](./static/ndc-scroll-screenshot.avif)
+
+<p align="center">
+  <img src="./static/ndc-scroll-screenshot.avif" alt="NDC Scroll 画面イメージ" width="600">
+</p>
 
 ### NDC Scrollとは
 NDC Scrollは、日本十進分類法（NDC）のデータを視覚化するツールです。NDCの階層構造を探索するための対話的な操作画面を提供し、検索機能、詳細表示、階層表示のスティッキースクロールなどの機能を備えています。
