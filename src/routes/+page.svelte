@@ -9,7 +9,7 @@
   import NDCListColumn from './NDCListColumn.svelte';
   import DetailColumn from './DetailColumn.svelte';
   import LoadingBar from './LoadingAnimation.svelte';
-  import HoverMenu from './HoverMenu.svelte';
+  import HoverMenu from '../components/HoverMenu.svelte';
   import type { NDC9Item } from '../lib/ndc9';
   import { detailHistoryStore } from '../store/detailHistoryStore';
   import { ndc9Store } from '../store/ndc9Store';
@@ -92,7 +92,7 @@
 
 <LoadingBar {isLoading} />
 
-<HoverMenu />
+<HoverMenu hideHomeButton={true} />
 
 <main class="layout" class:mobile={isMobile} on:touchstart={handleTouchStart} on:touchmove={handleTouchMove} on:touchend={handleTouchEnd}>
   {#if !isMobile || activeColumn === 'search'}

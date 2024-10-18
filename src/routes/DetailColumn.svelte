@@ -304,6 +304,7 @@
     background: none;
     border: none;
     color: var(--color-primary);
+    font-size: var(--font-size-base);
     cursor: pointer;
     padding: 0;
     text-align: left;

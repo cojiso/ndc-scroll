@@ -2,25 +2,36 @@
 <script lang="ts">
   import { fly, slide } from 'svelte/transition';
   import { quintOut } from 'svelte/easing';
-  import { Home, Info, Github } from 'lucide-svelte';
+  import { Home, Info, Github, Coffee, ArrowRight } from 'lucide-svelte';
+  import { base } from '$app/paths';
+
+  export let hideHomeButton = false;
+  export let hideAboutButton = false;
 
   let isOpen = false;
 
   const menuItems = [
-    { name: 'about', icon: Info, url: '/about' },
+    { name: 'open app', icon: ArrowRight, url: base || '/' },
+    { name: 'about', icon: Info, url: `${base}/about` },
+    { name: 'github', icon: Github, url: 'https://github.com/cojiso/ndc-scroll' },
     { name: 'creators home', icon: Home, url: 'https://orbit.supply' },
-    { name: 'github', icon: Github, url: 'https://github.com' },
+    { name: 'buy me a NDC10', icon: Coffee, url: 'https://www.buymeacoffee.com/' },
   ];
 
   function toggleMenu() {
     isOpen = !isOpen;
   }
+
+  $: filteredMenuItems = menuItems.filter(item => 
+    !(hideHomeButton && item.name === 'open app') &&
+    !(hideAboutButton && item.name === 'about')
+  );
 </script>
 
 <div class="menu-container">
   {#if isOpen}
     <div class="menu-items" transition:slide={{duration: 300, easing: quintOut}}>
-      {#each menuItems as item}
+      {#each filteredMenuItems as item}
         <a href={item.url} class="menu-item" transition:fly={{y: 20, duration: 300, delay: 100}}>
           <svelte:component this={item.icon} size={20} />
           <span>{item.name}</span>
