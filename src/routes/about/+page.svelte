@@ -67,7 +67,7 @@
   </footer>
 </main>
 
-<HoverMenu hideAboutButton={false} />
+<HoverMenu hideAboutButton={true} />
 
 <style>
   :global(body) {
