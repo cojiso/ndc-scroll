@@ -17,7 +17,7 @@ NDC（Nippon Decimal Classification; 日本十進分類法）とは、日本の�
 
 ## 利用者向け情報
 ### 動作確認用サイト
-実際の動作を確認できるサイト: https://ndc-scroll.pages.dev
+実際の動作を確認できるサイト: https://ndc-scroll.orbit.supply
 
 ### 特徴
 - 日本十進分類法（NDC）第9版の利用と視覚化
@@ -28,7 +28,7 @@ NDC（Nippon Decimal Classification; 日本十進分類法）とは、日本の�
 - パソコンと携帯端末の両方に対応した画面設計
 
 ### 使用方法
-1. 動作確認用サイト（https://ndc-scroll.pages.dev）にアクセスします。
+1. 動作確認用サイト（(https://ndc-scroll.orbit.supply)）にアクセスします。
 2. 左側の検索欄を使用して特定の分類を検索するか、中央の一覧をスクロールしてNDCの階層構造を探索します。
 3. 項目をクリックすると、右側に詳細情報が表示されます。
 
